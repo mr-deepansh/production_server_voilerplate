@@ -11,7 +11,7 @@ if (!fs.existsSync(LOG_DIR)) {
 }
 
 const SERVICE_NAME = "api-service";
-const ENV = process.env.NODE_ENV || "development";
+const ENV = process.env.NODE_ENV;
 const devFormat = printf(({ level, message, timestamp, stack }) => {
   return `${timestamp} [${level.toUpperCase()}] [${SERVICE_NAME}] (${ENV}) ${
     stack || message

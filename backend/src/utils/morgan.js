@@ -1,11 +1,11 @@
 import morgan from "morgan";
 import { logger } from "./logger.js";
 
-const ENV = process.env.NODE_ENV;
+const ENV = import.meta.env.NODE_ENV;
 
 // stream → winston
 const stream = {
-    write: (message) => {
+    write: (message) => { 
         logger.info(message.trim());
     }
 };
