@@ -36,8 +36,16 @@ class ApiError extends Error {
     return new ApiError({ statusCode: 404, message, code: "NOT_FOUND" });
   }
 
+  static conflict(message = "Conflict", details = null) {
+    return new ApiError({ statusCode: 409, message, code: "CONFLICT", details });
+  }
+
   static validationError(message = "Validation Error", details = null) {
     return new ApiError({ statusCode: 422, message, code: "VALIDATION_ERROR", details });
+  }
+
+  static tooManyRequests(message = "Too Many Requests") {
+    return new ApiError({ statusCode: 429, message, code: "TOO_MANY_REQUESTS" });
   }
 
   static internal(message = "Internal Server Error") {

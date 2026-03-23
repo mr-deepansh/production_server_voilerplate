@@ -1,8 +1,8 @@
-import app from "./app";
 import { connectDB } from "./config/db.js";
 import { env } from "./config/env.js";
 import dotenv from "dotenv";
 import { logger } from "./utils/logger.js";
+import app from "./app.js";
 
 dotenv.config({
   quiet: true,
