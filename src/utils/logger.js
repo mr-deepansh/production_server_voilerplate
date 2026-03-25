@@ -3,41 +3,55 @@ import path from "path";
 import winston from "winston";
 
 const { combine, timestamp, printf, errors, json, colorize } = winston.format;
-
-const LOG_DIR = "logs";
+const ENV = process.env.NODE_ENV ?? "development";
+const SERVICE = process.env.SERVICE_NAME ?? "api-service";
+const IS_PROD = ENV === "production";
+const LOG_DIR = path.resolve(process.cwd(), "logs");
 
 if (!fs.existsSync(LOG_DIR)) {
-  fs.mkdirSync(LOG_DIR);
+  fs.mkdirSync(LOG_DIR, { recursive: true });
 }
 
-const SERVICE_NAME = "api-service";
-const ENV = process.env.NODE_ENV;
-const devFormat = printf(({ level, message, timestamp, stack }) => {
-  return `${timestamp} [${level.toUpperCase()}] [${SERVICE_NAME}] (${ENV}) ${stack || message}`;
-});
+//In DEV - [2025-01-01 12:00:00] INFO [api-service] (development) Message or stack
+const devFormat = combine(
+  colorize({ all: true }),
+  timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+  errors({ stack: true }),
+  printf(({ level, message, timestamp: ts, stack, ...meta }) => {
+    const { service, env, ...restMeta } = meta; // 🔥 IMPORTANT
+    const metaStr = Object.keys(restMeta).length ? ` ${JSON.stringify(restMeta)}` : "";
+    return `[${ts}] ${level} [${SERVICE}] (${ENV}) ${stack ?? message}${metaStr}`;
+  })
+);
 
-const prodFormat = json();
+//In PROD - {"timestamp":"2025-01-01T12:00:00.000Z","level":"info","service":"api-service","env":"production","message":"Message or stack"}
+const prodFormat = combine(timestamp(), errors({ stack: true }), json());
 
 export const logger = winston.createLogger({
-  level: ENV === "production" ? "info" : "debug",
-  format: combine(
-    timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
-    errors({ stack: true }),
-    ENV === "production" ? prodFormat : devFormat
-  ),
+  level: IS_PROD ? "info" : "debug",
+  defaultMeta: {
+    service: SERVICE,
+    env: ENV,
+  },
+  format: IS_PROD ? prodFormat : devFormat,
   transports: [
-    // console
-    new winston.transports.Console({
-      format: ENV === "production" ? combine(timestamp(), json()) : combine(colorize(), devFormat),
-    }),
+    new winston.transports.Console(),
     // error logs
     new winston.transports.File({
       filename: path.join(LOG_DIR, "error.log"),
       level: "error",
+      format: prodFormat,
+    }),
+    // warn logs
+    new winston.transports.File({
+      filename: path.join(LOG_DIR, "warn.log"),
+      level: "warn",
+      format: prodFormat,
     }),
     // all logs
     new winston.transports.File({
       filename: path.join(LOG_DIR, "combined.log"),
+      format: prodFormat,
     }),
   ],
   exitOnError: false,
