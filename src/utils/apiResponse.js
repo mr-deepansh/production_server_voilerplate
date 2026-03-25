@@ -24,7 +24,7 @@ class ApiResponse {
   }
 
   // 400 — Bad Request
-  static fail(message = "Error", statusCode = 500) {
+  static fail(message = "Request failed", statusCode = 400) {
     return new ApiResponse({ statusCode, message, data: null });
   }
 

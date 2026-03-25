@@ -3,24 +3,22 @@ import { logger } from "./logger.js";
 
 const ENV = process.env.NODE_ENV;
 
-// stream → winston
 const stream = {
-  write: (message) => {
-    logger.info(message.trim());
-  },
+  write: (message) => logger.http(message.trim()),
 };
+morgan.token("request-id", (req) => req.headers["x-request-id"] ?? "-");
 
-// custom format (clean + useful)
-const format = ":method :url :status :response-time ms - :res[content-length]";
-const skip = (req, res) => {
-  if (req.url === "/") return true;
-  if (ENV === "production") {
-    return res.statusCode < 400;
-  }
-  return false;
-};
-
-export const morganMiddleware = morgan(format, {
-  stream,
-  skip,
+const FORMAT = JSON.stringify({
+  method: ":method",
+  url: ":url",
+  status: ":status",
+  responseTime: ":response-time",
+  contentLength: ":res[content-length]",
+  ip: ":remote-addr",
+  userAgent: ":user-agent",
+  requestId: ":request-id",
 });
+const HEALTHCHECK_PATHS = new Set(["/", "/health", "/api/health"]);
+const skip = (req) => HEALTHCHECK_PATHS.has(req.url);
+
+export const morganMiddleware = morgan(FORMAT, { stream, skip });

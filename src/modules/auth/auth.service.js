@@ -10,24 +10,21 @@ export const register = async ({
   username,
   password,
   confirmPassword,
-  role,
 }) => {
-
   if (password !== confirmPassword) {
-    throw new ApiError.conflict("Passwords do not match");
+    throw ApiError.conflict("Passwords do not match");
   }
   const existingUser = await User.findOne({ $or: [{ email }, { username }] });
   if (existingUser) {
-    throw new ApiError.conflict("User already exists");
+    throw ApiError.conflict("User already exists");
   }
-  const { rowToken, hashedToken } = generateResetToken();
+  const { rawToken, hashedToken } = generateResetToken();
   const user = await User.create({
     firstName,
     lastName,
     username,
     email,
     password,
-    role,
     verificationToken: hashedToken,
   });
   // TODO: send verification email with rowToken

@@ -4,15 +4,15 @@ import cookieParser from "cookie-parser";
 import apiResponse from "./utils/apiResponse.js";
 import { morganMiddleware } from "./utils/morgan.js";
 import { errorHandler } from "./middleware/error.middleware.js";
-import authRoutes from "./modules/auth/auth.route.js";
+import authRoutes from "./modules/auth/auth.routes.js";
 
 const app = express();
 // Middlewares
-app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
+app.use(morganMiddleware);
 app.use(express.json({ limit: "10kb" }));
+app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 app.use(cookieParser());
-app.use(morganMiddleware);
 
 // Health check route
 app.get("/health", (req, res) => {

@@ -20,40 +20,37 @@ class ApiError extends Error {
     return new ApiError({ statusCode: 400, message, code: "BAD_REQUEST", details });
   }
 
-  static unauthorized(message = "Unauthorized") {
+  static unauthorized(message = "Unauthorized", details = null) {
     return new ApiError({ statusCode: 401, message, code: "UNAUTHORIZED" });
   }
 
-  static forbidden(message = "Forbidden") {
-    return new ApiError({ statusCode: 403, message, code: "FORBIDDEN" });
+  static forbidden(message = "Forbidden", details = null) {
+    return new ApiError({ statusCode: 403, message, code: "FORBIDDEN", details });
   }
 
   static conflict(message = "Conflict", details = null) {
     return new ApiError({ statusCode: 409, message, code: "CONFLICT", details });
   }
 
-  static notFound(message = "Not Found") {
-    return new ApiError({ statusCode: 404, message, code: "NOT_FOUND" });
-  }
-
-  static conflict(message = "Conflict", details = null) {
-    return new ApiError({ statusCode: 409, message, code: "CONFLICT", details });
+  static notFound(message = "Not Found", details = null) {
+    return new ApiError({ statusCode: 404, message, code: "NOT_FOUND", details });
   }
 
   static validationError(message = "Validation Error", details = null) {
     return new ApiError({ statusCode: 422, message, code: "VALIDATION_ERROR", details });
   }
 
-  static tooManyRequests(message = "Too Many Requests") {
-    return new ApiError({ statusCode: 429, message, code: "TOO_MANY_REQUESTS" });
+  static tooManyRequests(message = "Too Many Requests", details = null) {
+    return new ApiError({ statusCode: 429, message, code: "TOO_MANY_REQUESTS", details });
   }
 
-  static internal(message = "Internal Server Error") {
+  static internal(message = "Internal Server Error", details = null) {
     return new ApiError({
       statusCode: 500,
       message,
       code: "INTERNAL_ERROR",
       isOperational: false,
+      details,
     });
   }
 }
