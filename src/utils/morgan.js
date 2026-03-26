@@ -4,8 +4,21 @@ import { logger } from "./logger.js";
 const ENV = process.env.NODE_ENV;
 
 const stream = {
-  write: (message) => logger.http(message.trim()),
+  write: (message) => {
+    try {
+      const logData = JSON.parse(message.trim());
+      logData.status = parseInt(logData.status, 10);
+      logData.responseTime = parseFloat(logData.responseTime);
+      if (logData.contentLength && logData.contentLength !== "-") {
+        logData.contentLength = parseInt(logData.contentLength, 10);
+      }
+      logger.http(logData);
+    } catch (error) {
+      logger.http(message.trim());
+    }
+  },
 };
+
 morgan.token("request-id", (req) => req.headers["x-request-id"] ?? "-");
 
 const FORMAT = JSON.stringify({
